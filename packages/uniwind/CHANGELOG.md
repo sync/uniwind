@@ -1,4 +1,18 @@
-## What's Changed in 1.6.4
+## What's Changed in 1.6.5
+
+
+
+### 🐛 Bug Fixes
+* fix: deeply find themed variables by @Brentlok in [#535](https://github.com/uni-stack/uniwind/pull/535)
+
+
+### 📦 Other
+* Fix !important modifier having no effect on native by @jezsung in [#534](https://github.com/uni-stack/uniwind/pull/534)
+
+
+### New Contributors
+* @jezsung made their first contribution in [#534](https://github.com/uni-stack/uniwind/pull/534)
+**Full Changelog**: https://github.com/uni-stack/uniwind/compare/v1.6.4...v1.6.5## What's Changed in 1.6.4
 
 
 
