@@ -1,8 +1,8 @@
+import { StyleDependency } from '../../common/consts'
 import { arrayEquals } from '../../common/utils'
-import { StyleDependency } from '../../types'
 import { UniwindListener } from '../listener'
 import { Logger } from '../logger'
-import { CSSVariables, GenerateStyleSheetsCallback, ThemeName } from '../types'
+import type { CSSVariables, GenerateStyleSheetsCallback, ThemeName } from '../types'
 import { getWebVariable } from '../web'
 import { UniwindConfigBuilder as UniwindConfigBuilderBase } from './config.common'
 

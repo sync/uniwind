@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { BuildConfig, defineBuildConfig } from 'unbuild'
 
 type Config = {
@@ -6,6 +7,8 @@ type Config = {
     pattern?: Array<string>
     declaration?: boolean
 }
+
+const srcPath = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta.url))
 
 const getConfig = (config: Config) =>
     [
@@ -40,17 +43,17 @@ export default defineBuildConfig({
     entries: [
         {
             builder: 'rollup',
-            input: './src/metro',
+            input: './src/bundler/adapters/metro',
             name: 'metro/index',
         },
         {
             builder: 'rollup',
-            input: './src/metro/metro-transformer.ts',
-            name: 'metro/metro-transformer',
+            input: './src/bundler/adapters/metro/transformer.ts',
+            name: 'metro/transformer',
         },
         {
             builder: 'mkdist',
-            input: './src/metro',
+            input: './src/bundler/adapters/metro',
             outDir: 'dist/metro',
             pattern: ['index.d.ts'],
             declaration: true,
@@ -58,12 +61,12 @@ export default defineBuildConfig({
         },
         {
             builder: 'rollup',
-            input: './src/vite',
+            input: './src/bundler/adapters/vite',
             name: 'vite/index',
         },
         {
             builder: 'mkdist',
-            input: './src/vite',
+            input: './src/bundler/adapters/vite',
             outDir: 'dist/vite',
             pattern: ['index.d.ts'],
             declaration: true,
@@ -85,10 +88,16 @@ export default defineBuildConfig({
             pattern: [
                 '**/*',
                 '!metro/**',
+                '!bundler/adapters/metro/**',
+                '!bundler/adapters/vite/**',
             ],
             declaration: true,
         }),
     ],
+    alias: {
+        '@/common': srcPath('common'),
+        '@/bundler': srcPath('bundler'),
+    },
     outDir: 'dist',
     clean: true,
     externals: [
