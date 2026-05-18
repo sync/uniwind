@@ -51,6 +51,7 @@ export const transform = async (
     }
 
     const bundlerConfig = UniwindBundlerConfig.fromMetroConfig(config.uniwind, options.platform)
+    await bundlerConfig.generateArtifacts(cssArtifactPath)
     const virtualCode = await compileCSS(bundlerConfig)
     const isWeb = bundlerConfig.platform === Platform.Web
 
@@ -64,7 +65,6 @@ export const transform = async (
         'utf-8',
     )
 
-    await bundlerConfig.generateArtifacts(cssArtifactPath)
     const transform: any = await worker.transform(
         config,
         projectRoot,
