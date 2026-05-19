@@ -62,7 +62,7 @@ export class UniwindBundlerConfig {
     }
 
     get cssVisitor() {
-        return new UniwindCSSVisitor(this.themes)
+        return new UniwindCSSVisitor(this)
     }
 
     get polyfills() {

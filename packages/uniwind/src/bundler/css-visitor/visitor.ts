@@ -1,4 +1,5 @@
 import type { CustomAtRules, Visitor } from 'lightningcss'
+import type { UniwindBundlerConfig } from '../config'
 import { FunctionVisitor } from './function-visitor'
 import { RuleVisitor } from './rule-visitor'
 
@@ -7,8 +8,8 @@ export class UniwindCSSVisitor implements Visitor<CustomAtRules> {
     Rule: Visitor<CustomAtRules>['Rule']
     StyleSheet: Visitor<CustomAtRules>['StyleSheet']
 
-    constructor(private readonly themes: Array<string>) {
-        const ruleVisitor = new RuleVisitor(this.themes)
+    constructor(bundlerConfig: UniwindBundlerConfig) {
+        const ruleVisitor = new RuleVisitor(bundlerConfig)
 
         this.Function = new FunctionVisitor()
         this.Rule = ruleVisitor

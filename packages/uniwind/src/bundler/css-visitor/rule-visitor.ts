@@ -1,4 +1,5 @@
 import type { ReturnedDeclaration, ReturnedMediaQuery, ReturnedRule, Rule, SelectorComponent } from 'lightningcss'
+import type { UniwindBundlerConfig } from '../config'
 
 type LightningRuleVisitor = Rule<ReturnedDeclaration, ReturnedMediaQuery>
 type LightningRuleVisitors = Partial<
@@ -12,7 +13,7 @@ export class RuleVisitor implements LightningRuleVisitors {
     processedVariables = new Set<string>()
     currentLayerName = ''
 
-    constructor(private readonly themes: Array<string>) {}
+    constructor(private readonly bundlerConfig: UniwindBundlerConfig) {}
 
     'layer-block' = (layer: Extract<LightningRuleVisitor, { type: 'layer-block' }>) => {
         this.currentLayerName = layer.value.name?.join('') ?? ''
@@ -86,7 +87,7 @@ export class RuleVisitor implements LightningRuleVisitors {
             return styleRule
         }
 
-        const selectedVariant = this.themes.find(theme => whereSelector.name === theme)
+        const selectedVariant = this.bundlerConfig.themes.find(theme => whereSelector.name === theme)
 
         if (selectedVariant === undefined || this.processedVariables.has(selectedVariant)) {
             return styleRule
@@ -109,7 +110,7 @@ export class RuleVisitor implements LightningRuleVisitors {
         styleRule: Extract<LightningRuleVisitor, { type: 'style' }>,
         firstSelector: Extract<SelectorComponent, { type: 'class' }>,
     ): ReturnedRule | void {
-        const selectedVariant = this.themes.find(theme => firstSelector.name.includes(`${theme}:`))
+        const selectedVariant = this.bundlerConfig.themes.find(theme => firstSelector.name.includes(`${theme}:`))
 
         if (selectedVariant === undefined || this.processedClassNames.has(firstSelector.name)) {
             return
@@ -123,7 +124,7 @@ export class RuleVisitor implements LightningRuleVisitors {
                 loc: styleRule.value.loc,
                 rules: [styleRule],
                 scopeStart: [[{ type: 'class', name: selectedVariant }]],
-                scopeEnd: this.themes
+                scopeEnd: this.bundlerConfig.themes
                     .filter(theme => theme !== selectedVariant)
                     .map(theme => [{ type: 'class', name: theme }]),
             },

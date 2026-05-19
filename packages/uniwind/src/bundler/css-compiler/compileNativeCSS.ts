@@ -2,7 +2,7 @@ import type { UniwindBundlerConfig } from '../config'
 import { addMetaToStylesTemplate, ProcessorBuilder, serializeJSObject } from '../css-processor'
 
 export const compileNativeCSS = (bundlerConfig: UniwindBundlerConfig, tailwindCSS: string) => {
-    const Processor = new ProcessorBuilder(bundlerConfig.themes, bundlerConfig.polyfills)
+    const Processor = new ProcessorBuilder(bundlerConfig)
 
     Processor.transform(tailwindCSS)
 

@@ -1,7 +1,7 @@
 import { UNIWIND_PLATFORM_VARIABLES, UNIWIND_THEME_VARIABLES } from '@/common/consts'
 import type { Declaration, MediaQuery, Rule } from 'lightningcss'
 import { transform } from 'lightningcss'
-import type { Polyfills } from '../types'
+import type { UniwindBundlerConfig } from '../config'
 import { Color } from './color'
 import { CSS } from './css'
 import { Functions } from './functions'
@@ -26,8 +26,8 @@ export class ProcessorBuilder {
 
     private declarationConfig = this.getDeclarationConfig()
 
-    constructor(private readonly themes: Array<string>, readonly polyfills: Polyfills | undefined) {
-        this.vars['--uniwind-em'] = polyfills?.rem ?? 16
+    constructor(private readonly bundlerConfig: UniwindBundlerConfig) {
+        this.vars['--uniwind-em'] = this.bundlerConfig.polyfills?.rem ?? 16
     }
 
     transform(css: string) {
@@ -159,7 +159,7 @@ export class ProcessorBuilder {
                     if (selector.type === 'pseudo-class' && selector.kind === 'where') {
                         selector.selectors.forEach(selector => {
                             selector.forEach(selector => {
-                                if (selector.type === 'class' && this.themes.includes(selector.name)) {
+                                if (selector.type === 'class' && this.bundlerConfig.themes.includes(selector.name)) {
                                     theme = selector.name
                                 }
 
