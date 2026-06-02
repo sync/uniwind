@@ -11,6 +11,7 @@
     },
     "dependencies": {
         "@expo/metro-runtime": "57.0.2",
+        "@expo/ui": "56.0.15",
         "expo": "catalog:",
         "expo-splash-screen": "57.0.1",
         "expo-status-bar": "57.0.0",

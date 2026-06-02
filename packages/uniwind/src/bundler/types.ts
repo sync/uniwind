@@ -1,3 +1,9 @@
+type Experimental = {
+    thirdPartyModules?: {
+        expoUI?: boolean
+    }
+}
+
 export type UniwindConfig = {
     cssEntryFile: string
     extraThemes?: Array<string>
@@ -13,4 +19,5 @@ export type UniwindMetroConfig = UniwindConfig & {
     debug?: boolean
     isExpoProject?: boolean
     isTV?: boolean
+    experimental?: Experimental
 }

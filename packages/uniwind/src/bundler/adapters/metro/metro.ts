@@ -69,6 +69,7 @@ export const withUniwindConfig = <T extends MetroConfig>(
                     moduleName,
                     platform,
                     resolver,
+                    bundlerConfig,
                 })
 
                 return resolved
