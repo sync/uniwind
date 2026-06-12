@@ -92,6 +92,7 @@
             "default": "./dist/vite/index.cjs"
         },
         "./types": "./types.d.ts",
+        "./expo-ui-types": "./expo-ui.d.ts",
         "./package.json": "./package.json"
     },
     "files": [
@@ -101,6 +102,7 @@
         "vite",
         "uniwind.css",
         "types.d.ts",
+        "expo-ui.d.ts",
         "readme.md",
         "LICENSE"
     ],
