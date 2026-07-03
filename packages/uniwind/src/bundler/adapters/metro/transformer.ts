@@ -9,18 +9,28 @@ import path from 'path'
 
 const cssArtifactPath = path.resolve(__dirname, '../../uniwind.css')
 
-let worker: typeof MetroTransformWorker
+let worker: typeof MetroTransformWorker | undefined
 
-try {
-    try {
-        const { unstable_transformerPath } = require('@expo/metro-config') as typeof ExpoMetroConfig
-
-        worker = require(unstable_transformerPath)
-    } catch {
-        worker = require('@expo/metro-config/build/transform-worker/transform-worker.js')
+const getTransformWorker = (isExpoProject?: boolean): typeof MetroTransformWorker => {
+    if (worker) {
+        return worker
     }
-} catch {
-    worker = require('metro-transform-worker')
+
+    const resolvedWorker: typeof MetroTransformWorker = isExpoProject
+        ? (() => {
+            try {
+                const { unstable_transformerPath } = require('@expo/metro-config') as typeof ExpoMetroConfig
+
+                return require(unstable_transformerPath)
+            } catch {
+                return require('@expo/metro-config/build/transform-worker/transform-worker.js')
+            }
+        })()
+        : require('metro-transform-worker')
+
+    worker = resolvedWorker
+
+    return resolvedWorker
 }
 
 export const transform = async (
@@ -32,6 +42,7 @@ export const transform = async (
     data: Buffer,
     options: JsTransformOptions,
 ) => {
+    const worker = getTransformWorker(config.uniwind.isExpoProject)
     const isCss = options.type !== 'asset' && path.join(process.cwd(), config.uniwind.cssEntryFile) === path.join(projectRoot, filePath)
 
     if (filePath.endsWith('/components/web/metro-injected.js')) {

@@ -24,7 +24,10 @@ export const withUniwindConfig = <T extends MetroConfig>(
         transformerPath: require.resolve('./transformer.cjs'),
         transformer: {
             ...config.transformer,
-            uniwind: bundlerConfig.toMetroConfig(),
+            uniwind: {
+                ...bundlerConfig.toMetroConfig(),
+                isExpoProject: config.transformerPath?.includes('@expo/metro-config'),
+            },
         },
         resolver: {
             ...config.resolver,
