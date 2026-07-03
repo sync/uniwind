@@ -9,14 +9,17 @@ import path from 'path'
 
 const cssArtifactPath = path.resolve(__dirname, '../../uniwind.css')
 
-let worker: typeof MetroTransformWorker | undefined
+const workerCache = new Map<boolean, typeof MetroTransformWorker>()
 
 const getTransformWorker = (isExpoProject?: boolean): typeof MetroTransformWorker => {
-    if (worker) {
-        return worker
+    const cacheKey = Boolean(isExpoProject)
+    const cachedWorker = workerCache.get(cacheKey)
+
+    if (cachedWorker) {
+        return cachedWorker
     }
 
-    const resolvedWorker: typeof MetroTransformWorker = isExpoProject
+    const resolvedWorker: typeof MetroTransformWorker = cacheKey
         ? (() => {
             try {
                 const { unstable_transformerPath } = require('@expo/metro-config') as typeof ExpoMetroConfig
@@ -28,7 +31,7 @@ const getTransformWorker = (isExpoProject?: boolean): typeof MetroTransformWorke
         })()
         : require('metro-transform-worker')
 
-    worker = resolvedWorker
+    workerCache.set(cacheKey, resolvedWorker)
 
     return resolvedWorker
 }
