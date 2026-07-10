@@ -9,6 +9,7 @@ import path from 'path'
 
 const cssArtifactPath = path.resolve(__dirname, '../../uniwind.css')
 
+// Cache workers separately for Expo (`true`) and plain Metro (`false`) configs.
 const workerCache = new Map<boolean, typeof MetroTransformWorker>()
 
 const getTransformWorker = (isExpoProject?: boolean): typeof MetroTransformWorker => {
