@@ -185,6 +185,14 @@ declare module '@expo/ui/jetpack-compose' {
         colorClassName?: string
     }
 
+    interface SliderProps {
+        activeTickColorClassName?: string
+        activeTrackColorClassName?: string
+        inactiveTickColorClassName?: string
+        inactiveTrackColorClassName?: string
+        thumbColorClassName?: string
+    }
+
     interface SnackbarProps {
         actionContentColorClassName?: string
         containerColorClassName?: string

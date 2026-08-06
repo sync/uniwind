@@ -53,7 +53,7 @@ Package subpath exports:
 - `uniwind/components`: React Native component replacements.
 - `uniwind/components/*`: individual component replacements.
 - `uniwind/expo-ui`: `@expo/ui` universal component replacements.
-- `uniwind/expo-ui/swift-ui`: native Expo UI wrappers for SwiftUI components that expose `style`, top-level `color`, or tintable controls; other SwiftUI exports pass through. `uniwind/expo-ui/jetpack-compose`: native Expo UI wrappers for Jetpack Compose components that expose `style`, direct color props, or tintable controls such as `Switch`; the Compose Switch adapter resolves semantic on-track, off-track, and thumb color classes and expands them across matching enabled and disabled native color fields. Other Jetpack Compose exports pass through.
+- `uniwind/expo-ui/swift-ui`: native Expo UI wrappers for SwiftUI components that expose `style`, top-level `color`, or tintable controls; other SwiftUI exports pass through. `uniwind/expo-ui/jetpack-compose`: native Expo UI wrappers for Jetpack Compose components that expose `style`, direct color props, or tintable controls such as `Slider` and `Switch`; the Compose Slider adapter resolves semantic active-track, inactive-track, active-tick, inactive-tick, and thumb color classes, while the Compose Switch adapter resolves semantic on-track, off-track, and thumb color classes and expands them across matching enabled and disabled native color fields. Other Jetpack Compose exports pass through.
 - `uniwind/metro`: Metro adapter.
 - `uniwind/vite`: Vite plugin.
 - `uniwind/types`: generated/user-facing type support.
