@@ -1,6 +1,8 @@
 import {
     CircularProgressIndicator as ExpoCircularProgressIndicator,
     type CircularProgressIndicatorProps,
+    CircularWavyProgressIndicator as ExpoCircularWavyProgressIndicator,
+    type CircularWavyProgressIndicatorProps,
     LinearProgressIndicator as ExpoLinearProgressIndicator,
     type LinearProgressIndicatorProps,
     LinearWavyProgressIndicator as ExpoLinearWavyProgressIndicator,
@@ -49,6 +51,22 @@ export const LinearWavyProgressIndicator = copyComponentProperties(
 
         return (
             <ExpoLinearWavyProgressIndicator
+                {...props}
+                color={props.color ?? color}
+                trackColor={props.trackColor ?? trackColor}
+            />
+        )
+    },
+)
+
+export const CircularWavyProgressIndicator = copyComponentProperties(
+    ExpoCircularWavyProgressIndicator,
+    (props: CircularWavyProgressIndicatorProps) => {
+        const color = useAccentColor(props.colorClassName, props)
+        const trackColor = useAccentColor(props.trackColorClassName, props)
+
+        return (
+            <ExpoCircularWavyProgressIndicator
                 {...props}
                 color={props.color ?? color}
                 trackColor={props.trackColor ?? trackColor}

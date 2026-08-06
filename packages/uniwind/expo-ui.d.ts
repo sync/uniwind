@@ -181,6 +181,11 @@ declare module '@expo/ui/jetpack-compose' {
         trackColorClassName?: string
     }
 
+    interface CircularWavyProgressIndicatorProps {
+        colorClassName?: string
+        trackColorClassName?: string
+    }
+
     interface ShapeProps {
         colorClassName?: string
     }

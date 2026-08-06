@@ -13,7 +13,12 @@ export { Host } from './Host'
 export { Icon } from './Icon'
 export { ContainedLoadingIndicator, LoadingIndicator } from './LoadingIndicator'
 export { ModalBottomSheet } from './ModalBottomSheet'
-export { CircularProgressIndicator, LinearProgressIndicator, LinearWavyProgressIndicator } from './Progress'
+export {
+    CircularProgressIndicator,
+    CircularWavyProgressIndicator,
+    LinearProgressIndicator,
+    LinearWavyProgressIndicator,
+} from './Progress'
 export { Shape } from './Shape'
 export { Slider } from './Slider'
 export { Snackbar } from './Snackbar'
