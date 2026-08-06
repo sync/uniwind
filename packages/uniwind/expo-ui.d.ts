@@ -197,6 +197,12 @@ declare module '@expo/ui/jetpack-compose' {
         contentColorClassName?: string
     }
 
+    interface SwitchProps {
+        checkedTrackColorClassName?: string
+        offTrackColorClassName?: string
+        thumbColorClassName?: string
+    }
+
     interface TextProps {
         colorClassName?: string
     }

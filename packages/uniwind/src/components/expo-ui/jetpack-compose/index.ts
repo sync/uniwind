@@ -17,4 +17,5 @@ export { CircularProgressIndicator, LinearProgressIndicator, LinearWavyProgressI
 export { Shape } from './Shape'
 export { Snackbar } from './Snackbar'
 export { Surface } from './Surface'
+export { Switch } from './Switch'
 export { Text } from './Text'
