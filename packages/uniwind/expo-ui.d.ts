@@ -55,6 +55,7 @@ declare module '@expo/ui' {
 
     interface TextInputProps {
         className?: string
+        textClassName?: string
         cursorColorClassName?: string
         placeholderTextColorClassName?: string
         selectionColorClassName?: string

@@ -16,6 +16,7 @@ export const TextInput = copyComponentProperties(ExpoTextInput, (props: TextInpu
         isFocused,
     }
     const style = useStyle(props.className, props, state)
+    const textStyle = useStyle(props.textClassName, props, state)
     const cursorColor = useAccentColor(props.cursorColorClassName, props, state)
     const placeholderTextColor = useAccentColor(props.placeholderTextColorClassName, props, state)
     const selectionColor = useAccentColor(props.selectionColorClassName, props, state)
@@ -30,7 +31,7 @@ export const TextInput = copyComponentProperties(ExpoTextInput, (props: TextInpu
             selectionColor={props.selectionColor ?? selectionColor}
             selectionHandleColor={props.selectionHandleColor ?? selectionHandleColor}
             style={StyleSheet.flatten([style, props.style])}
-            textStyle={StyleSheet.flatten([style, props.textStyle]) as TextInputProps['textStyle']}
+            textStyle={StyleSheet.flatten([textStyle, props.textStyle]) as TextInputProps['textStyle']}
             onFocus={() => {
                 setIsFocused(true)
                 props.onFocus?.()
