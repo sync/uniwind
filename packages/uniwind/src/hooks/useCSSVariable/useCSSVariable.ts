@@ -52,7 +52,13 @@ export type GetCSSVariable = {
     ): IsGenericNumber<T['length']> extends true ? Array<string | number | undefined> : CreateArray<T['length'], string | number | undefined>
 }
 
-const subscribe = (callback: () => void) => UniwindListener.subscribe(callback, [StyleDependency.Theme, StyleDependency.Variables])
+const subscribe = (callback: () => void) =>
+    UniwindListener.subscribe(callback, [
+        StyleDependency.Theme,
+        StyleDependency.Variables,
+        StyleDependency.Dimensions,
+        StyleDependency.Orientation,
+    ])
 
 /**
  * A hook that returns the value of a CSS variable.

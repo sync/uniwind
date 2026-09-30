@@ -1,4 +1,4 @@
-import { Platform, StyleDependency } from '@/common/consts'
+import { Platform, StyleDependency, UNIWIND_PLATFORM_VARIABLES, UNIWIND_THEME_VARIABLES } from '@/common/consts'
 import { isDefined } from '@/common/utils'
 import type { ProcessorBuilder } from './processor'
 import { serialize } from './serialize'
@@ -57,7 +57,34 @@ const hasThemedVarDependency = (varName: string, Processor: ProcessorBuilder, vi
     })
 }
 
+// Include indirect aliases and scoped values when deriving runtime subscriptions.
+// Otherwise a root variable getter changes on resize but its cached styles do not.
+const getVariableExpressions = (names: Array<string>, scopes: Array<ProcessorBuilder['vars']>, visited = new Set<string>()): string => {
+    return names.map(name => {
+        if (visited.has(name)) {
+            return ''
+        }
+        visited.add(name)
+        const values = scopes.map(scope => scope[name])
+        return values.filter(value => typeof value === 'string').map(value => {
+            return value + getVariableExpressions(extractVarsFromString(value), scopes, visited)
+        }).join(' ')
+    }).join(' ')
+}
+
 export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
+    const isTV = currentPlatform === Platform.AndroidTV || currentPlatform === Platform.AppleTV
+    const commonPlatform = isTV ? Platform.TV : Platform.Native
+    const variableScopes = [
+        Processor.vars,
+        ...Object.entries(Processor.scopedVars)
+            .filter(([scope]) =>
+                scope.startsWith(UNIWIND_THEME_VARIABLES)
+                || scope === `${UNIWIND_PLATFORM_VARIABLES}${commonPlatform}`
+                || scope === `${UNIWIND_PLATFORM_VARIABLES}${currentPlatform}`
+            )
+            .map(([, values]) => values),
+    ]
     const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
             const styles = stylesPerMediaQuery.map((style, index) => {
@@ -83,9 +110,6 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     .map(([property, value]) => [`"${property}"`, `function(vars) { return ${serialize(value)} }`])
 
                 if (platform) {
-                    const isTV = currentPlatform === Platform.AndroidTV || currentPlatform === Platform.AppleTV
-                    const commonPlatform = isTV ? Platform.TV : Platform.Native
-
                     if (platform !== commonPlatform && platform !== currentPlatform) {
                         return null
                     }
@@ -98,17 +122,21 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                 const dependencies: Array<StyleDependency> = []
                 const stringifiedEntries = JSON.stringify(entries)
                 const usedVars = extractVarsFromString(stringifiedEntries)
+                const runtimeExpressions = stringifiedEntries + getVariableExpressions(usedVars, variableScopes)
                 const isUsingThemedVar = usedVars.some(usedVarName => hasThemedVarDependency(usedVarName, Processor))
 
                 if (usedVars.length > 0) {
                     dependencies.push(StyleDependency.Variables)
                 }
 
-                if (theme !== null || isUsingThemedVar || stringifiedEntries.includes('rt.lightDark')) {
+                if (
+                    theme !== null || isUsingThemedVar || runtimeExpressions.includes('rt.lightDark')
+                    || runtimeExpressions.includes('rt.currentThemeName')
+                ) {
                     dependencies.push(StyleDependency.Theme)
                 }
 
-                if (orientation !== null) {
+                if (orientation !== null || runtimeExpressions.includes('rt.orientation')) {
                     dependencies.push(StyleDependency.Orientation)
                 }
 
@@ -119,16 +147,16 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                 if (
                     Number(minWidth) !== 0
                     || Number(maxWidth) !== Number.MAX_VALUE
-                    || stringifiedEntries.includes('rt.screen')
+                    || runtimeExpressions.includes('rt.screen')
                 ) {
                     dependencies.push(StyleDependency.Dimensions)
                 }
 
-                if (stringifiedEntries.includes('rt.insets')) {
+                if (runtimeExpressions.includes('rt.insets')) {
                     dependencies.push(StyleDependency.Insets)
                 }
 
-                if (stringifiedEntries.includes('rt.fontScale')) {
+                if (runtimeExpressions.includes('rt.fontScale')) {
                     dependencies.push(StyleDependency.FontScale)
                 }
 
