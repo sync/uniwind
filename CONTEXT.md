@@ -142,7 +142,9 @@ Important concepts:
 
 - A `Style` record stores entries, breakpoint bounds, orientation, theme, RTL, native flag, dependencies, source index, class name, important properties, selector complexity, pseudo-states, and data attributes.
 - CSS variables live in `vars`; theme and platform-scoped variables live in `scopedVars` with internal prefixes.
+- Conditional platform variables inherit resolved `native` or `tv` defaults before global defaults. Shared platform scopes are compiled before specific scopes regardless of their stylesheet order; fallbacks remain lazy expressions and do not read the specific platform's own entry from `baseVars`.
 - The processor treats declarations under `:root` or outside class rules as variables.
+- Native variable getters preserve width, orientation, and color-scheme conditions instead of unconditionally taking the last media-query value. Color-scheme declarations stay in source order with ordinary root declarations and read the effective theme from a non-enumerable getter on the consumer's variable table, inherited by `ScopedVariables` overlays. Variable declarations retain important precedence within each scope. Conditional explicit theme variables fall back lazily to the shared base variable table after native/platform overrides, rather than embedding a global default.
 - Theme variants are recognized from known theme names.
 - Variant tokens (`:active`, `:focus`, `:disabled`, `:where(.theme)`, `:dir()`, `[data-x]`) are read from two selector shapes: nested under the class as `&:active` (Tailwind < 4.3.3) and flattened into the class selector as `.active\:x:active` (Tailwind >= 4.3.3). A selector carrying any token the runtime cannot observe (e.g. `[aria-disabled="true"]`, alone or stacked with a supported variant) is skipped, never applied under a weaker condition.
 - Data attribute variants support boolean `data-x` and exact `data-x="value"` matching against component props.

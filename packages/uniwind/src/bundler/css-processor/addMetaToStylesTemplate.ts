@@ -48,6 +48,10 @@ const hasThemedVarDependency = (varName: string, Processor: ProcessorBuilder, vi
         return false
     }
 
+    if (globalVarValue.includes('vars.__uniwindTheme')) {
+        return true
+    }
+
     return extractVarsFromString(globalVarValue).some(usedVarName => {
         return hasThemedVarDependency(usedVarName, Processor, visited)
     })

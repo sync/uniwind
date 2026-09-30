@@ -27,10 +27,12 @@ export const compileNativeCSS = (bundlerConfig: UniwindBundlerConfig, tailwindCS
     const currentColorVar = `currentColor: () => rt.colorScheme === 'dark' ? '#ffffff' : '#000000',`
 
     return [
-        '({',
+        '(() => {',
+        `const baseVars = ({ ${currentColorVar} ${vars} });`,
+        'return ({',
         `scopedVars: ({ ${serializedScopedVars} }),`,
-        `vars: ({ ${currentColorVar} ${vars} }),`,
+        'vars: baseVars,',
         `stylesheet: ({ ${stylesheet} }),`,
-        '})',
+        '}); })()',
     ].join('')
 }

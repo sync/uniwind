@@ -1,4 +1,4 @@
-import { UNIWIND_PLATFORM_VARIABLES, UNIWIND_THEME_VARIABLES } from '@/common/consts'
+import { Platform, UNIWIND_PLATFORM_VARIABLES, UNIWIND_THEME_VARIABLES } from '@/common/consts'
 import { isDefined } from '@/common/utils'
 import type { Declaration, MediaQuery, Rule, Selector } from 'lightningcss'
 import { transform } from 'lightningcss'
@@ -8,6 +8,7 @@ import { CSS } from './css'
 import { Functions } from './functions'
 import { MQ } from './mq'
 import { RN } from './rn'
+import { serialize } from './serialize'
 import type { ProcessMetaValues } from './types'
 import { Units } from './units'
 import { Var } from './var'
@@ -26,6 +27,7 @@ export class ProcessorBuilder {
     meta = {} as ProcessMetaValues
 
     private declarationConfig = this.getDeclarationConfig()
+    private variableDeclarations = new Map<Record<string, any>, Map<string, Array<{ value: any; condition: string; important: boolean }>>>()
 
     constructor(private readonly bundlerConfig: UniwindBundlerConfig) {
         this.vars['--uniwind-em'] = this.bundlerConfig.polyfills?.rem ?? 16
@@ -43,6 +45,41 @@ export class ProcessorBuilder {
                     }),
             },
         })
+
+        // Theme fallbacks read the base table after runtime platform overrides.
+        // Keep global declarations together so color-scheme media retain source order.
+        const commonPlatformKeys = new Set([
+            `${UNIWIND_PLATFORM_VARIABLES}${Platform.Native}`,
+            `${UNIWIND_PLATFORM_VARIABLES}${Platform.TV}`,
+        ])
+        const scopedEntries = Object.entries(this.scopedVars)
+        // Resolve shared native/TV defaults before specific platforms, even if
+        // their declarations appear later in the stylesheet.
+        const scopes = [
+            ['', this.vars] as const,
+            ...scopedEntries.filter(([key]) => commonPlatformKeys.has(key)),
+            ...scopedEntries.filter(([key]) => !commonPlatformKeys.has(key)),
+        ]
+        for (const [scopeName, scope] of scopes) {
+            const isThemeScope = scopeName.startsWith(UNIWIND_THEME_VARIABLES)
+            const commonPlatform = scopeName.endsWith('-tv') ? Platform.TV : Platform.Native
+            const commonVars = scopeName.startsWith(UNIWIND_PLATFORM_VARIABLES) && !commonPlatformKeys.has(scopeName)
+                ? this.scopedVars[`${UNIWIND_PLATFORM_VARIABLES}${commonPlatform}`]
+                : undefined
+            for (const [name, declarations] of this.variableDeclarations.get(scope) ?? []) {
+                let value = isThemeScope
+                    ? `baseVars[${JSON.stringify(name)}]?.(vars)`
+                    : scope === this.vars
+                    ? scope[name]
+                    : (scope[name] ?? commonVars?.[name] ?? this.vars[name])
+                for (const declaration of [...declarations].sort((a, b) => Number(a.important) - Number(b.important))) {
+                    value = declaration.condition === ''
+                        ? declaration.value
+                        : `(${declaration.condition} ? (${serialize(declaration.value)}) : (${serialize(value)}))`
+                }
+                scope[name] = value
+            }
+        }
     }
 
     private getDeclarationConfig() {
@@ -74,11 +111,12 @@ export class ProcessorBuilder {
                 return this.scopedVars[platformKey]
             }
 
-            if (this.declarationConfig.theme === null) {
+            const theme = this.declarationConfig.theme
+            if (theme === null) {
                 return this.vars
             }
 
-            const themeKey = `${UNIWIND_THEME_VARIABLES}${this.declarationConfig.theme}`
+            const themeKey = `${UNIWIND_THEME_VARIABLES}${theme}`
             this.scopedVars[themeKey] ??= {}
 
             return this.scopedVars[themeKey]
@@ -107,7 +145,32 @@ export class ProcessorBuilder {
         }
 
         if (declaration.property === 'custom') {
-            style[declaration.value.name] = this.CSS.processValue(declaration.value.value)
+            const value = this.CSS.processValue(declaration.value.value)
+            if (isVar) {
+                const conditions: Array<string> = []
+                if (Number(mq.minWidth) !== 0) {
+                    conditions.push(`rt.screen.width >= (${serialize(mq.minWidth)})`)
+                }
+                if (Number(mq.maxWidth) !== Number.MAX_VALUE) {
+                    conditions.push(`rt.screen.width <= (${serialize(mq.maxWidth)})`)
+                }
+                if (mq.orientation !== null) {
+                    conditions.push(`rt.orientation === ${JSON.stringify(mq.orientation)}`)
+                }
+                if (mq.colorScheme !== null) {
+                    conditions.push(`(vars.__uniwindTheme?.(vars) ?? rt.currentThemeName) === ${JSON.stringify(mq.colorScheme)}`)
+                }
+                let variables = this.variableDeclarations.get(style)
+                if (variables === undefined) {
+                    variables = new Map()
+                    this.variableDeclarations.set(style, variables)
+                }
+                const declarations = variables.get(declaration.value.name) ?? []
+                declarations.push({ value, condition: conditions.join(' && '), important })
+                variables.set(declaration.value.name, declarations)
+            } else {
+                style[declaration.value.name] = value
+            }
 
             if (!isVar && important) {
                 style.importantProperties.push(declaration.value.name)

@@ -85,6 +85,8 @@ class UniwindStoreBuilder {
         this.stylesheet = stylesheet
         this.vars = Object.fromEntries(themes.map(theme => {
             const clonedVars = Object.create(vars) as Vars
+            // Inherited by ScopedVariables overlays, without becoming a CSS variable.
+            Object.defineProperty(clonedVars, '__uniwindTheme', { value: () => theme })
             const themeVars = scopedVars[`${UNIWIND_THEME_VARIABLES}${theme}`]
 
             if (themeVars) {
